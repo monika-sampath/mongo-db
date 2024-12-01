@@ -1,0 +1,249 @@
+Question/Query - 01
+Find all the topics and tasks which are thought in the month of October
+
+db["topics"].aggregate([
+  {
+    $lookup: {
+      from: "tasks",
+      localField: "topic_id",
+      foreignField: "topic_id",
+      as: "tasks"
+    }
+  },
+  {
+    $match: {
+      date: { $gte: "2020-10-01", $lte: "2020-10-31" } // String comparison for date range
+    }
+  },
+  {
+    $project: {
+      topic_name: "$name",
+      tasks: "$tasks.task_name"
+    }
+  }
+]);
+
+ANSWER-
+
+{
+  _id: ObjectId('674a008250e5d2f30aee0bb4'),
+  topic_name: 'JavaScript Basics',
+  tasks: [
+    'Variables and Data Types'
+  ]
+}
+{
+  _id: ObjectId('674a008250e5d2f30aee0bb5'),
+  topic_name: 'MongoDB Queries',
+  tasks: [
+    'Basic Queries'
+  ]
+}
+{
+  _id: ObjectId('674a008250e5d2f30aee0bb6'),
+  topic_name: 'Node.js Introduction',
+  tasks: [
+    'Setup Node.js'
+  ]
+}
+
+
+Question/Query - 02
+Find all the company drives which appeared between 15 oct-2020 and 31-oct-2020
+
+db["company_drives"].find({
+  date: { $gte: "2020-10-15", $lte: "2020-10-31" }
+});
+
+ANSWER-
+
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba8'),
+  drive_id: 1,
+  company_name: 'Google',
+  date: '2020-10-16',
+  students_participated: [
+    1,
+    2
+  ]
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba9'),
+  drive_id: 2,
+  company_name: 'Microsoft',
+  date: '2020-10-18',
+  students_participated: [
+    2,
+    3
+  ]
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0baa'),
+  drive_id: 3,
+  company_name: 'Amazon',
+  date: '2020-10-25',
+  students_participated: [
+    1,
+    3
+  ]
+}
+
+Question/Query - 03
+Find all the company drives and students who are appeared for the placement.
+
+
+db["company_drives"].aggregate([
+  {
+    $unwind: "$students_participated"
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "students_participated",
+      foreignField: "user_id",
+      as: "student_details"
+    }
+  },
+  {
+    $project: {
+      company_name: 1,
+      student_name: { $arrayElemAt: ["$student_details.name", 0] }
+    }
+  }
+]);
+
+ANSWER-
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba8'),
+  company_name: 'Google',
+  student_name: 'John Doe'
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba8'),
+  company_name: 'Google',
+  student_name: 'Jane Smith'
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba9'),
+  company_name: 'Microsoft',
+  student_name: 'Jane Smith'
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0ba9'),
+  company_name: 'Microsoft',
+  student_name: 'Alice Johnson'
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0baa'),
+  company_name: 'Amazon',
+  student_name: 'John Doe'
+}
+{
+  _id: ObjectId('674a006550e5d2f30aee0baa'),
+  company_name: 'Amazon',
+  student_name: 'Alice Johnson'
+}
+
+
+Question/Query - 04
+4. Find the number of problems solved by each user in CodeKata
+
+db.users.aggregate([
+  {
+    $lookup: {
+      from: "codekata",
+      localField: "user_id",
+      foreignField: "user_id",
+      as: "codekata_details"
+    }
+  },
+  {
+    $project: {
+      name: 1,
+      problems_solved: { $arrayElemAt: ["$codekata_details.problems_solved", 0] }
+    }
+  }
+]);
+
+ANSWER-
+
+{
+  _id: ObjectId('674a0b7650e5d2f30aee0bc7'),
+  name: 'John Doe',
+  problems_solved: 50
+}
+{
+  _id: ObjectId('674a0b7650e5d2f30aee0bc8'),
+  name: 'Jane Smith',
+  problems_solved: 35
+}
+{
+  _id: ObjectId('674a0b7650e5d2f30aee0bc9'),
+  name: 'Alice Johnson',
+  problems_solved: 40
+}
+
+
+Question/Query - 05
+5. Find all the mentors with more than 15 mentees
+
+db.mentors.find({ mentee_count: { $gt: 15 } });
+
+ANSWER-
+{
+  _id: ObjectId('674a007050e5d2f30aee0bac'),
+  mentor_id: 1,
+  name: 'Paul Brown',
+  mentee_count: 20
+}
+{
+  _id: ObjectId('674a007050e5d2f30aee0bae'),
+  mentor_id: 3,
+  name: 'Tom Green',
+  mentee_count: 25
+}
+
+
+Question/Query - 06
+Find the number of users who are absent and task is not submitted  between 15 oct-2020 and 31-oct-2020
+
+db.attendance.aggregate([
+  {
+    $match: {
+      date: { $gte: "2020-10-15", $lte: "2020-10-31" }, // Date range between 15-Oct-2020 and 31-Oct-2020
+      status: "Absent" // Only users who were absent
+    }
+  },
+  {
+    $lookup: {
+      from: "tasks", // Join with Tasks collection
+      localField: "user_id", // Field in Attendance
+      foreignField: "user_id", // Field in Tasks
+      as: "tasks"
+    }
+  },
+  {
+    $unwind: "$tasks" // Flatten the tasks array
+  },
+  {
+    $match: {
+      "tasks.submission_status": "Not Submitted" // Only tasks with "Not Submitted" status
+    }
+  },
+  {
+    $group: {
+      _id: "$user_id", // Group by user_id
+      count: { $sum: 1 } // Count the number of absent and not submitted task users
+    }
+  },
+  {
+    $count: "absent_and_not_submitted" // Return the total count of such users
+  }
+]);
+
+
+ANSWER - 
+
+{
+  absent_and_not_submitted: 1
+}

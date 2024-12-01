@@ -1,0 +1,20 @@
+[
+  {
+    "drive_id": 1,
+    "company_name": "Google",
+    "date": "2020-10-16",
+    "students_participated": [1, 2]
+  },
+  {
+    "drive_id": 2,
+    "company_name": "Microsoft",
+    "date": "2020-10-18",
+    "students_participated": [2, 3]
+  },
+  {
+    "drive_id": 3,
+    "company_name": "Amazon",
+    "date": "2020-10-25",
+    "students_participated": [1, 3]
+  }
+]

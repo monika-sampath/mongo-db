@@ -1,0 +1,26 @@
+[
+  {
+    "task_id": 1,
+    "topic_id": 1,
+    "task_name": "Variables and Data Types",
+    "user_id": 1,
+    "submission_status": "Submitted",
+    "date": "2020-10-10"
+  },
+  {
+    "task_id": 2,
+    "topic_id": 2,
+    "task_name": "Basic Queries",
+    "user_id": 2,
+    "submission_status": "Not Submitted",
+    "date": "2020-10-15"
+  },
+  {
+    "task_id": 3,
+    "topic_id": 3,
+    "task_name": "Setup Node.js",
+    "user_id": 3,
+    "submission_status": "Submitted",
+    "date": "2020-10-20"
+  }
+]
